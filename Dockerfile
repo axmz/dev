@@ -4,8 +4,9 @@ ENV HOME=/root
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends \
     clang \
+    clangd \
+    lldb \
     cmake \
-    gdb \
     valgrind \
     cppcheck \
     vim \
@@ -14,9 +15,20 @@ RUN apt-get install -y --no-install-recommends \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-FROM base AS devcontainer
+# Zsh
+RUN git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git \
+    ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions && \
+    git clone --depth=1 https://github.com/zsh-users/zsh-history-substring-search.git \
+    ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search && \
+    git clone --depth=1 https://github.com/zsh-users/zsh-completions.git \
+    ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-completions && \
+    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
+    ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
 
+COPY .zshrc /root/.zshrc
 COPY .gitignore /root/.gitignore
+
+FROM base AS devcontainer
 
 # Go
 ARG GO_VERSION=1.25.3
@@ -43,18 +55,8 @@ RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v${NVM_VERSION}/instal
 RUN bash -c 'source "$NVM_DIR/nvm.sh" && \
     nvm install node && \
     npm install -g yarn pnpm nodemon typescript'
-
-# Zsh
-RUN git clone --depth=1 https://github.com/zsh-users/zsh-autosuggestions.git \
-    ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions && \
-    git clone --depth=1 https://github.com/zsh-users/zsh-history-substring-search.git \
-    ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-history-substring-search && \
-    git clone --depth=1 https://github.com/zsh-users/zsh-completions.git \
-    ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-completions && \
-    git clone --depth=1 https://github.com/romkatv/powerlevel10k.git \
-    ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/powerlevel10k
-
-COPY .p10k.zsh /root/.p10k.zsh
-COPY .zshrc /root/.zshrc
+RUN echo 'export NVM_DIR="$HOME/.nvm"' >> /root/.zshrc && \
+    echo '[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"' >> /root/.zshrc && \
+    echo '[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"' >> /root/.zshrc
 
 CMD ["zsh"]
