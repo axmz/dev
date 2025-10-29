@@ -3,6 +3,7 @@ export VISUAL=vim
 export ZSH="$HOME/.oh-my-zsh"
 export PATH="/opt/gitstatus/bin:$PATH"
 ZSH_THEME="powerlevel10k/powerlevel10k"
+POWERLEVEL9K_DISABLE_CONFIGURATION_WIZARD=true
 plugins=(git zsh-autosuggestions zsh-history-substring-search zsh-completions)
 source $ZSH/oh-my-zsh.sh
 zstyle ':omz:update' mode disabled
