@@ -1,8 +1,6 @@
 {
 	"name": "devcontainer",
-	"build": {
-		"dockerfile": "Dockerfile"
-	},
+	"image": "axmz/devcontainer:latest",
 	"runArgs": [
 		"--name",
 		"devcontainer"
